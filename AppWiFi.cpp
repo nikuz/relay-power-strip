@@ -4,6 +4,7 @@
 #include "def.h"
 #include "AppWiFiDef.h"
 #include "AppWiFi.h"
+#include "AppTime.h"
 
 AppWiFi::AppWiFi() {}
 
@@ -38,5 +39,14 @@ bool AppWiFi::isConnected() {
 void AppWiFi::reconnect() {
     if (!AppWiFi::isConnected()) {
         WiFi.reconnect();
+        for (int loops = 10; loops > 0; loops--) {
+            if (WiFi.isConnected()) {
+                //get internet time
+                AppTime::obtainSNTP();
+                break;
+            } else {
+                delay(1000);
+            }
+        }
     }
 }

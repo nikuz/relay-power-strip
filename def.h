@@ -1,6 +1,6 @@
 #define PRODUCTION 1    // production
 //#define PRODUCTION 0    // development
-#define DEBUG 0
+//#define DEBUG 1
 
 #define VERSION_ID "1"
 
@@ -20,5 +20,10 @@
 #define DEBUG_PRINTLN(x)
 #endif
 
-// sensors
-#define SOIL_SENSOR_1 1
+// relays pins
+#define RELAY_1 16
+#define RELAY_2 17
+#define RELAY_3 18
+#define RELAY_4 19
+#define RELAY_5 21
+#define RELAY_6 22

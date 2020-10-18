@@ -5,12 +5,12 @@
 
 // RelayItem({pin}, {name}, {highLevelTrigger}) - highLevelTrigger is true by default
 static RelayItem relays[] = {
-        RelayItem(16, "1", true),
-        RelayItem(17, "2", true),
-        RelayItem(18, "3", true),
-        RelayItem(19, "4", true),
-        RelayItem(21, "5", true),
-        RelayItem(22, "6", true),
+        RelayItem(RELAY_1, "1", true),
+        RelayItem(RELAY_2, "2", true),
+        RelayItem(RELAY_3, "3", true),
+        RelayItem(RELAY_4, "4", true),
+        RelayItem(RELAY_5, "5", true),
+        RelayItem(RELAY_6, "6", true),
 };
 
 Relay::Relay() {}

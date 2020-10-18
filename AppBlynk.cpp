@@ -43,7 +43,7 @@ String uptimeCache = "";
 
 const unsigned long blynkConnectAttemptTime = 5UL * 1000UL;  // try to connect to blynk server only 5 seconds
 bool blynkConnectAttemptFirstTime = true;
-WidgetTerminal blynkTerminal(V30);
+WidgetTerminal blynkTerminal(V50);
 
 static BlynkIntVariable intVariables[20];
 static BlynkStringVariable stringVariables[10];
@@ -195,6 +195,13 @@ void checkRelay(const char *pin, const char *relayName, int value) {
     }
 }
 
+void saveRelayTime(const char *pinStart, const char *pinEnd, TimeInputParam t) {
+    if (t.hasStartTime() && t.hasStopTime()) {
+        writeHandler(pinStart, t.getStartHour(), true);
+        writeHandler(pinEnd, t.getStopHour(), true);
+    }
+}
+
 BLYNK_WRITE(V20) { // otaHost
     writeHandler("otaHost", param.asStr(), true);
 };
@@ -202,76 +209,64 @@ BLYNK_WRITE(V21) { // otaBin
     writeHandler("otaBin", param.asStr(), true);
 };
 // relay 1
-BLYNK_WRITE(V30) { // relay1DayStart
-    writeHandler("relay1DayStart", param.asInt(), true);
-};
-BLYNK_WRITE(V31) { // relay1DayEnd
-    writeHandler("relay1DayEnd", param.asInt(), true);
-};
-BLYNK_WRITE(V32) { // relay1Enabled
+BLYNK_WRITE(V30) {
     int value = param.asInt();
     checkRelay("relay1Enabled", "1", value);
     writeHandler("relay1Enabled", value, true);
-};
+}
+BLYNK_WRITE(V31) {
+    TimeInputParam t(param);
+    saveRelayTime("relay1DayStart", "relay1DayEnd", t);
+}
 // relay 2
-BLYNK_WRITE(V33) { // relay2DayStart
-    writeHandler("relay2DayStart", param.asInt(), true);
-};
-BLYNK_WRITE(V34) { // relay2DayEnd
-    writeHandler("relay2DayEnd", param.asInt(), true);
-};
-BLYNK_WRITE(V35) { // relay2Enabled
+BLYNK_WRITE(V32) { // relay2Enabled
     int value = param.asInt();
     checkRelay("relay2Enabled", "2", value);
     writeHandler("relay2Enabled", value, true);
 };
+BLYNK_WRITE(V33) { // relay2DayStart
+    TimeInputParam t(param);
+    saveRelayTime("relay2DayStart", "relay2DayEnd", t);
+};
 // relay 3
-BLYNK_WRITE(V36) { // relay3DayStart
-    writeHandler("relay3DayStart", param.asInt(), true);
-};
-BLYNK_WRITE(V37) { // relay3DayEnd
-    writeHandler("relay3DayEnd", param.asInt(), true);
-};
-BLYNK_WRITE(V38) { // relay3Enabled
+BLYNK_WRITE(V34) { // relay3Enabled
     int value = param.asInt();
     checkRelay("relay3Enabled", "3", value);
     writeHandler("relay3Enabled", value, true);
 };
+BLYNK_WRITE(V35) { // relay3DayStart
+    TimeInputParam t(param);
+    saveRelayTime("relay3DayStart", "relay3DayEnd", t);
+};
 // relay 4
-BLYNK_WRITE(V39) { // relay4DayStart
-    writeHandler("relay4DayStart", param.asInt(), true);
-};
-BLYNK_WRITE(V40) { // relay4DayEnd
-    writeHandler("relay4DayEnd", param.asInt(), true);
-};
-BLYNK_WRITE(V41) { // relay4Enabled
+BLYNK_WRITE(V36) { // relay4Enabled
     int value = param.asInt();
     checkRelay("relay4Enabled", "4", value);
     writeHandler("relay4Enabled", value, true);
 };
+BLYNK_WRITE(V37) { // relay4DayStart
+    TimeInputParam t(param);
+    saveRelayTime("relay4DayStart", "relay4DayEnd", t);
+};
 // relay 5
-BLYNK_WRITE(V42) { // relay5DayStart
-    writeHandler("relay5DayStart", param.asInt(), true);
-};
-BLYNK_WRITE(V43) { // relay5DayEnd
-    writeHandler("relay5DayEnd", param.asInt(), true);
-};
-BLYNK_WRITE(V44) { // relay5Enabled
+BLYNK_WRITE(V38) { // relay5Enabled
     int value = param.asInt();
     checkRelay("relay5Enabled", "5", value);
     writeHandler("relay5Enabled", value, true);
 };
+BLYNK_WRITE(V39) { // relay5DayStart
+    TimeInputParam t(param);
+    saveRelayTime("relay5DayStart", "relay5DayEnd", t);
+};
 // relay 6
-BLYNK_WRITE(V45) { // relay6DayStart
-    writeHandler("relay6DayStart", param.asInt(), true);
-};
-BLYNK_WRITE(V46) { // relay6DayEnd
-    writeHandler("relay6DayEnd", param.asInt(), true);
-};
-BLYNK_WRITE(V47) { // relay6Enabled
+BLYNK_WRITE(V40) { // relay6Enabled
     int value = param.asInt();
     checkRelay("relay6Enabled", "6", value);
     writeHandler("relay6Enabled", value, true);
+};
+BLYNK_WRITE(V41) { // relay6DayStart
+    TimeInputParam t(param);
+    saveRelayTime("relay6DayStart", "relay6DayEnd", t);
 };
 //
 BLYNK_WRITE(V10) { // ping
@@ -361,8 +356,7 @@ void AppBlynk::run() {
 }
 
 void AppBlynk::getData(int &localVariable, const char *pinId, int pinData, const bool storePreferences) {
-    int blynkPin = AppBlynk::getPinById(pinId);
-    if (localVariable == -1 || blynkPin == -1) {
+    if (localVariable == -1) {
         return;
     }
     if (pinData != localVariable) {
@@ -374,8 +368,7 @@ void AppBlynk::getData(int &localVariable, const char *pinId, int pinData, const
 }
 
 void AppBlynk::getData(String &localVariable, const char *pinId, String pinData, const bool storePreferences) {
-    int blynkPin = AppBlynk::getPinById(pinId);
-    if (localVariable == "fish" || blynkPin == -1) {
+    if (localVariable == "fish") {
         return;
     }
     if (pinData != localVariable) {
