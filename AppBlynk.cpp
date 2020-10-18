@@ -3,7 +3,7 @@
 
 #include "def.h"
 
-#ifdef DEBUG
+#if DEBUG
 #define BLYNK_DEBUG // Optional, this enables lots of prints
 #define BLYNK_PRINT Serial
 #endif

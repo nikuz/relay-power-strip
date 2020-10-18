@@ -24,7 +24,7 @@ public:
 
     static bool RTCBattery();
 
-    static struct tm *RTCGetCurrentTime();
+    static struct tm RTCGetCurrentTime();
 
     static struct tm getCurrentTime();
 
@@ -70,6 +70,8 @@ private:
 
     // actual number of timers in use
     int numTimers;
+
+    static void RTCIsDateTimeValid();
 };
 
 #endif /* AppTime_h */

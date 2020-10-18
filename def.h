@@ -1,6 +1,6 @@
 #define PRODUCTION 1    // production
 //#define PRODUCTION 0    // development
-//#define DEBUG 1
+#define DEBUG 1
 
 #define VERSION_ID "1"
 
@@ -12,7 +12,7 @@
 
 #define VERSION VERSION_MARKER VERSION_ID
 
-#ifdef DEBUG
+#if DEBUG
 #define DEBUG_PRINT(x)    Serial.print(x)
 #define DEBUG_PRINTLN(x)  Serial.println(x)
 #else
@@ -25,5 +25,5 @@
 #define RELAY_2 17
 #define RELAY_3 18
 #define RELAY_4 19
-#define RELAY_5 21
-#define RELAY_6 22
+#define RELAY_5 23
+#define RELAY_6 25

@@ -19,7 +19,7 @@ String otaBin = "/esp32-updates/relay-power-strip.bin";
 #else
 String otaBin = "/esp32-updates/relay-power-strip-dev.bin";
 #endif
-#ifdef DEBUG
+#if DEBUG
 EspOta otaUpdate(otaHost, otaPort, otaBin, TAG, true);
 #else
 EspOta otaUpdate(otaHost, otaPort, otaBin, TAG);
@@ -123,7 +123,10 @@ void setup() {
         ;
     }
 
+    // relay initiate
     Relay::initiate();
+    AppTime::RTCBegin();
+    hourCheck();
 
     // restore preferences
     AppStorage::setVariable(&otaHost, "otaHost");

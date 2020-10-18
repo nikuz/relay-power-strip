@@ -1,5 +1,9 @@
 #include <Arduino.h>
+#include <RtcDS3231.h>
+#include <Wire.h>
 #include <Time.h>
+
+RtcDS3231 <TwoWire> Rtc(Wire);
 
 #include "def.h"
 #include "AppTime.h"
@@ -36,7 +40,6 @@ struct tm RTCCurrentTime = {
         tm_yday: -1,
         tm_isdst: -1
 };
-int rtcTemperature = 0;
 bool rtcBatteryAlive = true;
 
 static inline unsigned long elapsed() { return millis(); }
@@ -58,6 +61,30 @@ AppTime::AppTime() {
 
 AppTime::~AppTime() {}
 
+void AppTime::RTCBegin() {
+    Rtc.Begin();
+
+    RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+    if (!Rtc.IsDateTimeValid()) {
+        Rtc.SetDateTime(compiled);
+        Serial.println("RTC lost confidence in the DateTime!");
+    }
+    if (!Rtc.GetIsRunning()) {
+        Rtc.SetIsRunning(true);
+        Serial.println("RTC was not actively running, starting now");
+    }
+    RtcDateTime now = Rtc.GetDateTime();
+    if (now < compiled) {
+        Rtc.SetDateTime(compiled);
+        Serial.println("RTC is older than compile time!  (Updating DateTime)");
+    }
+
+    // never assume the Rtc was last configured by you, so
+    // just clear them to your needed state
+    Rtc.Enable32kHzPin(false);
+    Rtc.SetSquareWavePin(DS3231SquareWavePin_ModeNone);
+}
+
 void AppTime::obtainSNTP() {
     if (AppWiFi::isConnected()) {
         configTime(gmtOffset_sec, daylightOffset_sec, ntpServer, ntpServer2, ntpServer3);
@@ -69,22 +96,48 @@ bool AppTime::localTime(struct tm *timeinfo) {
 }
 
 int AppTime::RTCGetTemperature() {
-    return rtcTemperature;
+    RtcTemperature rtcTemp = Rtc.GetTemperature();
+    return rtcTemp.AsFloatDegC();
 }
 
 bool AppTime::RTCBattery() {
     return rtcBatteryAlive;
 }
 
-struct tm *AppTime::RTCGetCurrentTime() {
-    return &RTCCurrentTime;
+void AppTime::RTCIsDateTimeValid() {
+    const bool isValid = Rtc.IsDateTimeValid();
+
+    if (!isValid) {
+        rtcBatteryAlive = false;
+    } else {
+        rtcBatteryAlive = true;
+    }
+}
+
+struct tm AppTime::RTCGetCurrentTime() {
+    RtcDateTime rtcTime = Rtc.GetDateTime();
+    AppTime::RTCIsDateTimeValid();
+
+    struct tm dateTime = {
+        tm_sec: rtcTime.Second(),
+        tm_min: rtcTime.Minute(),
+        tm_hour: rtcTime.Hour(),
+        tm_mday: rtcTime.Day(),
+        tm_mon: rtcTime.Month() - 1, // 0 based
+        tm_year: rtcTime.Year() - 1900,
+        tm_wday: 0,
+        tm_yday: 0,
+        tm_isdst: -1
+    };
+
+    return dateTime;
 }
 
 struct tm AppTime::getCurrentTime() {
     struct tm timeinfo = NTPCurrentTime;
     if (!AppWiFi::isConnected() || !AppTime::localTime(&timeinfo)) {
         if (AppTime::RTCBattery()) {
-            timeinfo = RTCCurrentTime;
+            timeinfo = AppTime::RTCGetCurrentTime();
         } else {
             // AppTime::RTCBegin();
             // AppTime::RTCUpdateByNtp();
@@ -184,7 +237,7 @@ void AppTime::print() {
     char *ntpTimeStr = Tools::getCharArray(ntpTime, 2);
     AppBlynk::println(ntpTimeStr);
 
-    char *rtcTime[] = {"rtcTime: ", AppTime::getTimeString(RTCCurrentTime)};
+    char *rtcTime[] = {"rtcTime: ", AppTime::getTimeString(AppTime::RTCGetCurrentTime())};
     char *rtcTimeStr = Tools::getCharArray(rtcTime, 2);
     AppBlynk::println(rtcTimeStr);
 }
