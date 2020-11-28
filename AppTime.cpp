@@ -160,15 +160,15 @@ int AppTime::getCurrentMinute() {
 char *AppTime::getTimeString(struct tm timeStruct, char format[]) {
     static char timeString[20];
     snprintf_P(
-            timeString,
-            sizeof timeString,
-            PSTR(format),
-            timeStruct.tm_mon + 1,
-            timeStruct.tm_mday,
-            timeStruct.tm_year + 1900,
-            timeStruct.tm_hour,
-            timeStruct.tm_min,
-            timeStruct.tm_sec
+        timeString,
+        sizeof timeString,
+        PSTR(format),
+        timeStruct.tm_mon + 1,
+        timeStruct.tm_mday,
+        timeStruct.tm_year + 1900,
+        timeStruct.tm_hour,
+        timeStruct.tm_min,
+        timeStruct.tm_sec
     );
     return timeString;
 }
@@ -321,3 +321,35 @@ int AppTime::getOverFlowCounter() {
     return overFlowCounter;
 };
 
+void AppTime::RTCDateTimeUpdate() {
+    const char months[][4] = {
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    };
+    struct tm ntpTime = {0};
+
+    if (getLocalTime(&ntpTime)) {
+        char date[15];
+        char time[10];
+
+        sprintf(
+            date,
+            "%.3s%3d %4d",
+            months[ntpTime.tm_mon],
+            ntpTime.tm_mday,
+            ntpTime.tm_year + 1900
+        );
+
+        sprintf(
+            time,
+            "%02d:%02d:%02d",
+            ntpTime.tm_hour,
+            ntpTime.tm_min,
+            ntpTime.tm_sec
+        );
+
+        // 10/10/2018 00:09:21
+        RtcDateTime ntpDateTime = RtcDateTime(date, time);
+        Rtc.SetDateTime(ntpDateTime);
+    }
+}

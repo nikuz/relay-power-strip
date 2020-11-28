@@ -1,8 +1,8 @@
 #define PRODUCTION 1    // production
 //#define PRODUCTION 0    // development
-#define DEBUG 1
+#define DEBUG 0
 
-#define VERSION_ID "1"
+#define VERSION_ID "3"
 
 #if PRODUCTION
 #define VERSION_MARKER "P"

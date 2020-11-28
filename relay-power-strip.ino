@@ -8,7 +8,7 @@
 #include "Relay.h"
 #include "AppBlynk.h"
 
-static const char *TAG = "relay-power-strip";
+static const char *TAG = "relay-ps";
 AppTime timer;
 
 // OTA settings
@@ -162,6 +162,7 @@ void setup() {
 
     //get internet time
     AppTime::obtainSNTP();
+    AppTime::RTCDateTimeUpdate();
 
     // register Blynk variables
     AppBlynk::setVariable(&otaHost, "otaHost");

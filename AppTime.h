@@ -40,6 +40,8 @@ public:
 
     static int getOverFlowCounter();
 
+    static void RTCDateTimeUpdate();
+
     // maximum number of timers
     const static int MAX_TIMERS = 16;
 
