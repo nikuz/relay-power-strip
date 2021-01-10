@@ -345,7 +345,7 @@ void AppBlynk::checkConnect() {
 }
 
 void AppBlynk::initiate() {
-    Blynk.config(blynkAuth);
+    Blynk.config(blynkAuth, blynkDomain, blynkPort);
     AppBlynk::checkConnect();
 }
 
